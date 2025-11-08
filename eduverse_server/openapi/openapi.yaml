@@ -1,0 +1,1428 @@
+openapi: 3.0.3
+info:
+  description: |
+    API платформы EduVerse. Авторы: команда 5
+  title: EduVerse
+  version: 1.0.0
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/comand_5/API_EduVerse/1.0.0
+security:
+- bearerAuth: []
+tags:
+- description: Авторизация пользователей
+  name: Auth
+- description: Пользователи
+  name: Users
+- description: Расписание занятий
+  name: Schedule
+- description: "Учебные данные (предметы, оценки)"
+  name: Academic
+- description: Учёт посещаемости
+  name: Attendance
+- description: Магазин товаров
+  name: Shop
+- description: Библиотека
+  name: Library
+- description: Внутренняя валюта и транзакции
+  name: Currency
+- description: Администрирование
+  name: Admin
+paths:
+  /academic/grades:
+    get:
+      description: Получение списка оценок конкретного студента
+      operationId: get_list_grades
+      parameters:
+      - description: Идентификатор студента
+        explode: true
+        in: query
+        name: student_id
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Grade"
+                type: array
+          description: Список оценок
+        "404":
+          description: Оценки не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Оценки студента
+      tags:
+      - Academic
+      x-openapi-router-controller: eduverse_server.controllers.academic_controller
+    post:
+      description: Доступно только преподавателю
+      operationId: create_grade
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Grade"
+        required: true
+      responses:
+        "200":
+          description: Оценка сохранена
+        "404":
+          description: Оценки не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Добавить оценку
+      tags:
+      - Academic
+      x-openapi-router-controller: eduverse_server.controllers.academic_controller
+  /academic/homework:
+    get:
+      operationId: get_list_homework
+      parameters:
+      - explode: true
+        in: query
+        name: subject_id
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Homework"
+                type: array
+          description: Список заданий
+        "404":
+          description: Домашняя работа не найдена
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Список домашнего задания
+      tags:
+      - Academic
+      x-openapi-router-controller: eduverse_server.controllers.academic_controller
+    post:
+      description: Доступно преподавателю
+      operationId: create_homework
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Homework"
+        required: true
+      responses:
+        "201":
+          description: Задание добавлено
+        "404":
+          description: домашнее задание не найдено
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Добавить домашнее задание
+      tags:
+      - Academic
+      x-openapi-router-controller: eduverse_server.controllers.academic_controller
+  /academic/subjects:
+    get:
+      operationId: get_list_subject
+      parameters:
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Subject"
+                type: array
+          description: Список предметов
+        "404":
+          description: Предметы не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Список предметов
+      tags:
+      - Academic
+      x-openapi-router-controller: eduverse_server.controllers.academic_controller
+    post:
+      operationId: create_subject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Subject"
+        required: true
+      responses:
+        "201":
+          description: Предмет создан
+        "404":
+          description: Предметы не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Добавить предмет
+      tags:
+      - Academic
+      x-openapi-router-controller: eduverse_server.controllers.academic_controller
+  /admin/users:
+    get:
+      operationId: get_users
+      parameters:
+      - description: Фильтр по роли
+        explode: true
+        in: query
+        name: role
+        required: false
+        schema:
+          enum:
+          - student
+          - class_president
+          - teacher
+          - admin
+          type: string
+        style: form
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/User"
+                type: array
+          description: Список пользователей
+        "404":
+          description: пользователями не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Управление пользователями
+      tags:
+      - Admin
+      x-openapi-router-controller: eduverse_server.controllers.admin_controller
+  /attendance:
+    get:
+      operationId: get_attendance
+      parameters:
+      - description: Идентификатор студента
+        explode: true
+        in: query
+        name: student_id
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+                type: array
+          description: Список посещаемости
+        "404":
+          description: Посещаемость не найдена
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Посещаемость студента
+      tags:
+      - Attendance
+      x-openapi-router-controller: eduverse_server.controllers.attendance_controller
+    post:
+      description: Доступно преподавателю и старосте
+      operationId: create_attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/attendance_body"
+        required: true
+      responses:
+        "200":
+          description: Посещаемость выставлена
+        "404":
+          description: Посещаемость не найдена
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Выставление посещаемости
+      tags:
+      - Attendance
+      x-openapi-router-controller: eduverse_server.controllers.attendance_controller
+  /auth/login:
+    post:
+      description: Авторизация по email и паролю
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/auth_login_body"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200"
+          description: Успешный вход
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Неверный логин или пароль
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      security: []
+      summary: Вход в систему
+      tags:
+      - Auth
+      x-openapi-router-controller: eduverse_server.controllers.auth_controller
+  /currency/balance:
+    get:
+      operationId: get_balance
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_3"
+          description: Баланс пользователя
+        "404":
+          description: Баланс не найден
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Баланс пользователя
+      tags:
+      - Currency
+      x-openapi-router-controller: eduverse_server.controllers.currency_controller
+  /currency/transactions:
+    get:
+      operationId: get_transations
+      parameters:
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Transaction"
+                type: array
+          description: Список транзакций
+        "404":
+          description: Транзакции не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: История транзакций
+      tags:
+      - Currency
+      x-openapi-router-controller: eduverse_server.controllers.currency_controller
+  /library/books:
+    get:
+      operationId: get_list_books
+      parameters:
+      - description: Строка поиска по названию
+        explode: true
+        in: query
+        name: search
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Book"
+                type: array
+          description: Список книг
+        "404":
+          description: Книги не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Список книг
+      tags:
+      - Library
+      x-openapi-router-controller: eduverse_server.controllers.library_controller
+    post:
+      description: Доступно преподавателю
+      operationId: create_book
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Book"
+        required: true
+      responses:
+        "201":
+          description: Книга добавлена
+        "404":
+          description: Книги не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Добавить книгу
+      tags:
+      - Library
+      x-openapi-router-controller: eduverse_server.controllers.library_controller
+  /library/books/{book_id}:
+    delete:
+      description: Удаление книги по её идентификатору.
+      operationId: delete_book_id
+      parameters:
+      - explode: false
+        in: path
+        name: book_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Книга удалёна
+        "404":
+          description: Книга не найдена
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Удалить пользователя
+      tags:
+      - Library
+      x-openapi-router-controller: eduverse_server.controllers.library_controller
+    get:
+      operationId: get_book_id
+      parameters:
+      - explode: false
+        in: path
+        name: book_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+          description: Книга найдена
+        "404":
+          description: Книга не найдена
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Получить книгу по ID
+      tags:
+      - Library
+      x-openapi-router-controller: eduverse_server.controllers.library_controller
+    put:
+      operationId: update_book_id
+      parameters:
+      - explode: false
+        in: path
+        name: book_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      responses:
+        "200":
+          description: Книга обновлёна
+        "400":
+          description: Неверные данные
+        "404":
+          description: Книга не найдена
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Обновить книгу
+      tags:
+      - Library
+      x-openapi-router-controller: eduverse_server.controllers.library_controller
+  /schedule:
+    get:
+      description: Берётся из базы данных
+      operationId: get_schedule
+      parameters:
+      - description: Дата занятий (YYYY-MM-DD)
+        explode: true
+        in: query
+        name: date
+        required: false
+        schema:
+          example: 2025-10-25
+          type: string
+        style: form
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/inline_response_200_2"
+                type: array
+          description: Список занятий
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Расписание занятий
+      tags:
+      - Schedule
+      x-openapi-router-controller: eduverse_server.controllers.schedule_controller
+  /shop/products:
+    get:
+      operationId: get_list_products
+      parameters:
+      - description: Фильтр по категории
+        explode: true
+        in: query
+        name: category
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Product"
+                type: array
+          description: Список товаров
+        "404":
+          description: Товары не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Список товаров
+      tags:
+      - Shop
+      x-openapi-router-controller: eduverse_server.controllers.shop_controller
+    post:
+      operationId: create_product
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+        required: true
+      responses:
+        "201":
+          description: Товар создан
+        "404":
+          description: Товары не найдены
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Добавить товар
+      tags:
+      - Shop
+      x-openapi-router-controller: eduverse_server.controllers.shop_controller
+  /shop/products/{product_id}:
+    delete:
+      description: Удаление продукта по идентификатору.
+      operationId: delete_product_id
+      parameters:
+      - explode: false
+        in: path
+        name: product_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Продукт удалён
+        "404":
+          description: Продукт не найден
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Удалить продукт
+      tags:
+      - Shop
+      x-openapi-router-controller: eduverse_server.controllers.shop_controller
+    get:
+      operationId: get_product_id
+      parameters:
+      - explode: false
+        in: path
+        name: product_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+          description: Продукт найден
+        "404":
+          description: Продукт не найден
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Получить продукт по ID
+      tags:
+      - Shop
+      x-openapi-router-controller: eduverse_server.controllers.shop_controller
+  /users:
+    get:
+      description: Доступно только администратору
+      operationId: get_user
+      parameters:
+      - description: Номер страницы
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          type: integer
+        style: form
+      - description: Количество элементов на странице
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200_1"
+          description: Список пользователей
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Список пользователей
+      tags:
+      - Users
+      x-openapi-router-controller: eduverse_server.controllers.users_controller
+    post:
+      description: Доступно только администратору
+      operationId: create_user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      responses:
+        "201":
+          description: Пользователь создан
+        "400":
+          description: Неверные данные
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Создать пользователя
+      tags:
+      - Users
+      x-openapi-router-controller: eduverse_server.controllers.users_controller
+  /users/{user_id}:
+    delete:
+      description: Удаление пользователя по его идентификатору. Доступно только администратору
+      operationId: delete_user_id
+      parameters:
+      - explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Пользователь удалён
+        "404":
+          description: Пользователь не найден
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Удалить пользователя
+      tags:
+      - Users
+      x-openapi-router-controller: eduverse_server.controllers.users_controller
+    get:
+      description: Доступно только администратору
+      operationId: get_user_id
+      parameters:
+      - explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: Пользователь найден
+        "404":
+          description: Пользователь не найден
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Получить пользователя по ID
+      tags:
+      - Users
+      x-openapi-router-controller: eduverse_server.controllers.users_controller
+    put:
+      description: Доступно только администратору
+      operationId: update_user_id
+      parameters:
+      - explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      responses:
+        "200":
+          description: Пользователь обновлён
+        "400":
+          description: Неверные данные
+        "404":
+          description: Пользователь не найден
+        "401":
+          description: Неавторизованный доступ
+        "500":
+          description: Ошибка сервера
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Произошла ошибка
+      summary: Обновить пользователя
+      tags:
+      - Users
+      x-openapi-router-controller: eduverse_server.controllers.users_controller
+components:
+  parameters:
+    PageParam:
+      description: Номер страницы
+      explode: true
+      in: query
+      name: page
+      required: false
+      schema:
+        default: 1
+        type: integer
+      style: form
+    LimitParam:
+      description: Количество элементов на странице
+      explode: true
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 20
+        type: integer
+      style: form
+  schemas:
+    Error:
+      example:
+        code: 404
+        error: true
+        message: Ресурс не найден
+      properties:
+        error:
+          example: true
+          title: error
+          type: boolean
+        code:
+          example: 404
+          title: code
+          type: integer
+        message:
+          example: Ресурс не найден
+          title: message
+          type: string
+      title: Error
+      type: object
+    Pagination:
+      example:
+        total: 100
+        limit: 20
+        page: 1
+      properties:
+        page:
+          example: 1
+          title: page
+          type: integer
+        limit:
+          example: 20
+          title: limit
+          type: integer
+        total:
+          example: 100
+          title: total
+          type: integer
+      title: Pagination
+      type: object
+    Homework:
+      example:
+        subject_id: subject_id
+        description: description
+        title: title
+        deadline: 2000-01-23
+      properties:
+        subject_id:
+          title: subject_id
+          type: string
+        title:
+          title: title
+          type: string
+        description:
+          title: description
+          type: string
+        deadline:
+          format: date
+          title: deadline
+          type: string
+      title: Homework
+      type: object
+    User:
+      example:
+        role: student
+        user_id: usr_1
+        last_name: Иванов
+        first_name: Иван
+        email: ivan@example.com
+      properties:
+        user_id:
+          example: usr_1
+          title: user_id
+          type: string
+        first_name:
+          example: Иван
+          title: first_name
+          type: string
+        last_name:
+          example: Иванов
+          title: last_name
+          type: string
+        email:
+          example: ivan@example.com
+          title: email
+          type: string
+        role:
+          example: student
+          title: role
+          type: string
+      title: User
+      type: object
+    Subject:
+      example:
+        subject_id: sub_1
+        name: Математика
+      properties:
+        subject_id:
+          example: sub_1
+          title: subject_id
+          type: string
+        name:
+          example: Математика
+          title: name
+          type: string
+      title: Subject
+      type: object
+    Grade:
+      example:
+        subject_id: sub_1
+        grade: 5
+      properties:
+        subject_id:
+          example: sub_1
+          title: subject_id
+          type: string
+        grade:
+          example: 5
+          title: grade
+          type: integer
+      title: Grade
+      type: object
+    AttendanceRecord:
+      example:
+        date: 2025-10-01
+        present: true
+      properties:
+        date:
+          example: 2025-10-01
+          title: date
+          type: string
+        present:
+          example: true
+          title: present
+          type: boolean
+      title: AttendanceRecord
+      type: object
+    Product:
+      example:
+        price: 250
+        product_id: prd_1
+        name: Фон профиля — Космос
+        currency: EDC
+      properties:
+        product_id:
+          example: prd_1
+          title: product_id
+          type: string
+        name:
+          example: Фон профиля — Космос
+          title: name
+          type: string
+        price:
+          example: 250
+          title: price
+          type: integer
+        currency:
+          example: EDC
+          title: currency
+          type: string
+      title: Product
+      type: object
+    Book:
+      example:
+        author: А. Н. Иванов
+        book_id: bk_1
+        title: Основы программирования
+      properties:
+        book_id:
+          example: bk_1
+          title: book_id
+          type: string
+        title:
+          example: Основы программирования
+          title: title
+          type: string
+        author:
+          example: А. Н. Иванов
+          title: author
+          type: string
+      title: Book
+      type: object
+    Transaction:
+      example:
+        transaction_id: tr_1
+        date: 2025-10-12
+        amount: -50
+        type: purchase
+      properties:
+        transaction_id:
+          example: tr_1
+          title: transaction_id
+          type: string
+        type:
+          example: purchase
+          title: type
+          type: string
+        amount:
+          example: -50
+          title: amount
+          type: number
+        date:
+          example: 2025-10-12
+          title: date
+          type: string
+      title: Transaction
+      type: object
+    auth_login_body:
+      properties:
+        email:
+          example: ivan@example.com
+          title: email
+          type: string
+        password:
+          example: "123456"
+          title: password
+          type: string
+      required:
+      - email
+      - password
+      title: auth_login_body
+      type: object
+    inline_response_200:
+      example:
+        access_token: access_token
+        token_type: token_type
+      properties:
+        access_token:
+          title: access_token
+          type: string
+        token_type:
+          title: token_type
+          type: string
+      title: inline_response_200
+      type: object
+    inline_response_200_1:
+      example:
+        pagination:
+          total: 100
+          limit: 20
+          page: 1
+        data:
+        - role: student
+          user_id: usr_1
+          last_name: Иванов
+          first_name: Иван
+          email: ivan@example.com
+        - role: student
+          user_id: usr_1
+          last_name: Иванов
+          first_name: Иван
+          email: ivan@example.com
+      properties:
+        data:
+          items:
+            $ref: "#/components/schemas/User"
+          title: data
+          type: array
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+      title: inline_response_200_1
+      type: object
+    inline_response_200_2:
+      example:
+        teacher: teacher
+        subject: subject
+        time: time
+        room: room
+      properties:
+        subject:
+          title: subject
+          type: string
+        teacher:
+          title: teacher
+          type: string
+        time:
+          title: time
+          type: string
+        room:
+          title: room
+          type: string
+      title: inline_response_200_2
+      type: object
+    attendance_body:
+      properties:
+        student_id:
+          title: student_id
+          type: string
+        date:
+          format: date
+          title: date
+          type: string
+        present:
+          title: present
+          type: boolean
+      required:
+      - date
+      - present
+      - student_id
+      title: attendance_body
+      type: object
+    inline_response_200_3:
+      example:
+        balance: 320
+        currency: coins
+      properties:
+        balance:
+          example: 320
+          title: balance
+          type: integer
+        currency:
+          example: coins
+          title: currency
+          type: string
+      title: inline_response_200_3
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+      x-bearerInfoFunc: eduverse_server.controllers.security_controller.info_from_bearerAuth
